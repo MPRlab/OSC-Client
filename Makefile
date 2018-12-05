@@ -41,7 +41,7 @@ VPATH = ..
 ###############################################################################
 # Project settings
 
-PROJECT := parthenope
+PROJECT := osc
 
 
 # Project settings
