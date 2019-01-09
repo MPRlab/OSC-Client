@@ -48,7 +48,12 @@ PROJECT := osc
 ###############################################################################
 # Objects and Paths
 
+MYCPP += UDPBroadcastSocket.o
+MYCPP += osc_client.o
+
 OBJECTS += main.o
+#OBJECTS += UDPBroadcastSocket.o
+
 OBJECTS += mbed-os/cmsis/TARGET_CORTEX_M/mbed_tz_context.o
 OBJECTS += mbed-os/components/802.15.4_RF/atmel-rf-driver/source/NanostackRfPhyAtmel.o
 OBJECTS += mbed-os/components/802.15.4_RF/atmel-rf-driver/source/at24mac.o
@@ -1500,11 +1505,10 @@ $(PROJECT).link_script.ld: $(LINKER_SCRIPT)
 	@$(PREPROC) $< -o $@
 
 
-
-$(PROJECT).elf: $(OBJECTS) $(SYS_OBJECTS) $(PROJECT).link_script.ld 
+$(PROJECT).elf: $(OBJECTS) $(MYCPP) $(SYS_OBJECTS) $(PROJECT).link_script.ld 
 	+@echo "link: $(notdir $@)"
 	@$(LD) $(LD_FLAGS) -T $(filter-out %.o, $^) $(LIBRARY_PATHS) --output $@ $(filter %.o, $^) $(LIBRARIES) $(LD_SYS_LIBS)
-
+	
 
 $(PROJECT).bin: $(PROJECT).elf
 	$(ELF2BIN) -O binary $< $@

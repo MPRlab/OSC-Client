@@ -30,6 +30,15 @@ DigitalOut led1(LED1);	//Green running LED
 DigitalOut led2(LED2);	//Blue controller LED
 DigitalOut led3(LED3);	//Red ethernet LED
 
+static uint32_t swap_endian(uint32_t number){
+	uint32_t byte0, byte1, byte2, byte3;
+	byte0 = (number & 0x000000FF) >> 0;
+	byte1 = (number & 0x0000FF00) >> 8;
+	byte2 = (number & 0x00FF0000) >> 16;
+	byte3 = (number & 0xFF000000) >> 24;
+	return ((byte0<<24) | (byte1 << 16) | (byte2 << 8) | (byte3 << 0));
+}
+
 /**
  * Function that processes the OSC message recieved in main
  */
@@ -101,7 +110,7 @@ int main() {
 	led3 = 0;	//turn off red LED
 
 	//Setup OSC client
-	OSCClient osc(&eth);
+	OSCClient osc(&eth, instrumentName);
 	osc.connect();
 	if(VERBOSE) printf("OSC controller IP Address: %s\r\n", osc.get_controller_ip());
 	led2 = 0;	//turn off blue LED
@@ -121,8 +130,9 @@ int main() {
 		if(size_or_error == NSAPI_ERROR_WOULD_BLOCK) /*do nothing*/;
 
 		//check if the size of the msg is <=0
-		else if(size_or_error <= 0)
+		else if(size_or_error <= 0) {
 			if(VERBOSE) printf("ERROR: %d\r\n", size_or_error);
+		}
 		
 		//process the message
 		else
