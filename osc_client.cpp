@@ -15,7 +15,7 @@ int OSCClient::OSC_SIZE(char* str) {
 	return len;
 }
 
-uint32_t OSCClient::swap_endian(uint32_t number){
+uint32_t OSCClient::swap_endian(uint32_t number) {
 	uint32_t byte0, byte1, byte2, byte3;
 	byte0 = (number & 0x000000FF) >> 0;
 	byte1 = (number & 0x0000FF00) >> 8;
@@ -208,7 +208,7 @@ nsapi_size_t OSCClient::checkForMessage(OSCMessage* msg) {
 	OSCMessage* newMsg;
 
 	//Call the recieve method to get a message
-	nsapi_size_or_error_t size_or_error = recieve(newMsg);
+	nsapi_size_or_error_t size_or_error = receive(newMsg);
 
 	//Check to see if the message is valid
 	if(size_or_error == NSAPI_ERROR_WOULD_BLOCK) return 0;
@@ -250,7 +250,7 @@ nsapi_size_t OSCClient::waitForMessage(OSCMessage* msg) {
  * 
  * @return pointer to the name
  */
-char* getInstrumentName(OSCMessage* msg) {
+char* OSCClient::getInstrumentName(OSCMessage* msg) {
 	return strtok(msg->address, "/");
 }
 
@@ -261,7 +261,7 @@ char* getInstrumentName(OSCMessage* msg) {
  * 
  * @return pointer to the type
  */
-char* getMessageType(OSCMessage* msg) {
+char* OSCClient::getMessageType(OSCMessage* msg) {
 	char* token = strtok(msg->address, "/");
 	return strtok(NULL, "/");
 }
@@ -273,7 +273,7 @@ char* getMessageType(OSCMessage* msg) {
  * 
  * @return pointer to the format
  */
-char* getMessageFormat(OSCMessage* msg) {
+char* OSCClient::getMessageFormat(OSCMessage* msg) {
 	return msg->format;
 }
 
@@ -284,7 +284,7 @@ char* getMessageFormat(OSCMessage* msg) {
  *
  * @return the data as an int
  */
-uint32_t getIntAtIndex(OSCMessage* msg, int index) {
+uint32_t OSCClient::getIntAtIndex(OSCMessage* msg, int index) {
 	
 	uint32_t val;
 
@@ -300,7 +300,7 @@ uint32_t getIntAtIndex(OSCMessage* msg, int index) {
  *
  * @return the data as a float
  */
-float getFloatAtIndex(OSCMessage* msg, int index){
+float OSCClient::getFloatAtIndex(OSCMessage* msg, int index){
 	
 	float val;
 
@@ -316,8 +316,9 @@ float getFloatAtIndex(OSCMessage* msg, int index){
  *
  * @return the data as a string
  */
-char* getStringAtIndex(OSCMessage* msg, int index) {
+char* OSCClient::getStringAtIndex(OSCMessage* msg, int index) {
 	//TODO:
+	return 0;
 }
 
 /** 
