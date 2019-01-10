@@ -120,6 +120,8 @@ byte* OSCClient::flatten_osc_message(OSCMessage* msg, int* len_ptr) {
 
 /**
  * Get the IP address of the controller
+ *
+ * @return The address of the controller
  */
 const char* OSCClient::get_controller_ip() {
 	return this->controller.get_ip_address();
@@ -189,7 +191,138 @@ nsapi_size_or_error_t OSCClient::receive(OSCMessage* msg) {
 	return recv;
 }
 
-/** Register name and supported functions with the central controller */
+/** 
+ * Checks to see if there is a valid OSC Message waiting
+ *
+ * Returns the message and the length if there is a message, or 0 if there is no message
+ *
+ * Non-blocking
+ *
+ * @param msg The OSCMessage to populate with incoming data
+ *
+ * @return The number of bytes recieved, or 0 for none
+ */
+nsapi_size_t OSCClient::checkForMessage(OSCMessage* msg) {
+	
+	//Create a new message pointer
+	OSCMessage* newMsg;
+
+	//Call the recieve method to get a message
+	nsapi_size_or_error_t size_or_error = recieve(newMsg);
+
+	//Check to see if the message is valid
+	if(size_or_error == NSAPI_ERROR_WOULD_BLOCK) return 0;
+	if(size_or_error <= 0) return 0;
+
+	//Set the original message pointer to the new message pointer
+	msg = newMsg;
+
+	//Return the message size
+	return size_or_error;
+}
+
+/**
+ * Waits for a valid OSC Message
+ *
+ * Returns the message and the length if there is a message, or 0 if there is no message
+ *
+ * Blocking
+ *
+ * @param msg The OSCMessage to populate with incoming data
+ *
+ * @return The number of bytes recieved, or 0 for none
+ */
+nsapi_size_t OSCClient::waitForMessage(OSCMessage* msg) {
+
+	nsapi_size_t size = 0;
+
+	while(size == 0) {
+		size = checkForMessage(msg);
+	}
+
+	return size;
+}
+
+/** 
+ * Gets the name of the instrument that the message is intended for
+ *
+ * @param msg The OSC Message
+ * 
+ * @return pointer to the name
+ */
+char* getInstrumentName(OSCMessage* msg) {
+	return strtok(msg->address, "/");
+}
+
+/** 
+ * Gets the type of the message
+ *
+ * @param msg The OSC Message
+ * 
+ * @return pointer to the type
+ */
+char* getMessageType(OSCMessage* msg) {
+	char* token = strtok(msg->address, "/");
+	return strtok(NULL, "/");
+}
+
+/**
+ * Gets the format of the message
+ *
+ * @param msg The OSC Message
+ * 
+ * @return pointer to the format
+ */
+char* getMessageFormat(OSCMessage* msg) {
+	return msg->format;
+}
+
+/**
+ * Returns the data at the specified index cast to an int
+ *
+ * @param msg The OSC Message
+ *
+ * @return the data as an int
+ */
+uint32_t getIntAtIndex(OSCMessage* msg, int index) {
+	
+	uint32_t val;
+
+	memcpy(&val, msg->data + (index * sizeof(uint32_t)), sizeof(uint32_t));
+
+	return swap_endian(val);
+}
+
+/**
+ * Returns the data at the specified index cast to an float
+ *
+ * @param msg The OSC Message
+ *
+ * @return the data as a float
+ */
+float getFloatAtIndex(OSCMessage* msg, int index){
+	
+	float val;
+
+	memcpy(&val, msg->data + (index * sizeof(float)), sizeof(float));
+
+	return swap_endian(val);
+}
+
+/**
+ * Returns the data at the specified index cast to a string
+ *
+ * @param msg The OSC Message
+ *
+ * @return the data as a string
+ */
+char* getStringAtIndex(OSCMessage* msg, int index) {
+	//TODO:
+}
+
+/** 
+ * Register name and supported functions with the central controller 
+ */
 void OSCClient::connect() {
 	// TODO: udp_broadcast socket can probably be a local variable in this function, 
 	// instead of being a field of OSCClient

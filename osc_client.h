@@ -64,6 +64,17 @@ class OSCClient {
 		nsapi_size_or_error_t send(OSCMessage* msg);
 		nsapi_size_or_error_t receive(OSCMessage* msg);
 		void connect();
+
+		// Untested methods below
+		nsapi_size_t checkForMessage(OSCMessage* msg);
+		nsapi_size_t waitForMessage(OSCMessage* msg);
+		char* getInstrumentName(OSCMessage* msg);
+		char* getMessageType(OSCMessage* msg);
+		char* getMessageFormat(OSCMessage* msg);
+		uint32_t getIntAtIndex(OSCMessage* msg, int index);
+		float getFloatAtIndex(OSCMessage* msg, int index);
+		char* getStringAtIndex(OSCMessage* msg, int index);
+
 };
 
 #endif /* OSC_CLIENT_H_ */
