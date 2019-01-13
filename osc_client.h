@@ -9,6 +9,8 @@
  * Changelog:
  * - 1.0 Initial commit
  * - 1.1 
+ * - 2.0 Overhaul that split the original .h file into 4 new files
+ * - 2.1 Added new methods to make everything easier
  */
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////

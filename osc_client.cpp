@@ -204,18 +204,11 @@ nsapi_size_or_error_t OSCClient::receive(OSCMessage* msg) {
  */
 nsapi_size_t OSCClient::checkForMessage(OSCMessage* msg) {
 	
-	//Create a new message pointer
-	OSCMessage* newMsg;
-
-	//Call the recieve method to get a message
-	nsapi_size_or_error_t size_or_error = receive(newMsg);
+	nsapi_size_or_error_t size_or_error = receive(msg);
 
 	//Check to see if the message is valid
 	if(size_or_error == NSAPI_ERROR_WOULD_BLOCK) return 0;
 	if(size_or_error <= 0) return 0;
-
-	//Set the original message pointer to the new message pointer
-	msg = newMsg;
 
 	//Return the message size
 	return size_or_error;
@@ -262,7 +255,7 @@ char* OSCClient::getInstrumentName(OSCMessage* msg) {
  * @return pointer to the type
  */
 char* OSCClient::getMessageType(OSCMessage* msg) {
-	char* token = strtok(msg->address, "/");
+	//char* token = strtok(msg->address, "/");
 	return strtok(NULL, "/");
 }
 

@@ -20,6 +20,7 @@
 #include "mbed.h"
 #include "EthernetInterface.h"
 #include "osc_client.h"
+#include <string>
 
 #define VERBOSE 1
 
@@ -39,7 +40,7 @@ int main() {
 	char name[] = "OSCInstrument";
 	instrumentName = name;
 
-	printf("Starting Client\r\n");
+	printf("Starting Instrunemt\r\n");
 
 	//Turn on all LEDs
 	led1 = 1;
@@ -68,24 +69,33 @@ int main() {
     while(true) {
         
         //get a new message and the size of the message
-		size = osc.waitForMessage(msg);
+		osc.waitForMessage(msg);
 
 		//Check that the message is for this instrument
 		if(strcmp(osc.getInstrumentName(msg), instrumentName) == 0) {
+
+			//printf("Message for this instrument\r\n");
 
 			//Process the message based on type
 			char* messageType = osc.getMessageType(msg);
 
 			 // Play a specific note
 			if(strcmp(messageType, "play") == 0) {
+
+				//printf("Is a play message\r\n");
+
 				// Check that the messages is the right format
 				if(strcmp(msg->format, ",ii") == 0) { // two ints
 					
 					uint32_t pitch 	  = osc.getIntAtIndex(msg, 0);
 					uint32_t velocity = osc.getIntAtIndex(msg, 1);
 
-					//TODO: play the note
+					printf("Pitch %d, velocity %d\r\n",pitch,velocity);
 
+					//TODO: play the note
+					led2 = 1;
+					wait(0.1);
+					led2 = 0;
 				}
 			}
 			// Turn off all notes
@@ -99,5 +109,7 @@ int main() {
 		else {
 			//Not intended for this instrument
 		}
+
+		printf("\r\n");
     }
 }
