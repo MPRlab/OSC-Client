@@ -38,11 +38,7 @@ This has been tested with version 12.6.2 (coming soon).
      ```
    - Edit the main.cpp file
    
-     Required changes:
-     
-     - Change line 87 to use your instrument name
-       
-     - Replace lines 67-68 with the code to play your instrument
+   - Add any new .cpp files to the Makefile
    
    - Compile the code
      ```
