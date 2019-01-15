@@ -30,6 +30,7 @@ This has been tested with version 12.6.2 (coming soon).
      sudo ln -s /opt/gcc-arm-none-eabi-7-2018-q2-update/bin/arm-none-eabi-cpp /usr/bin/arm-none-eabi-cpp
      sudo ln -s /opt/gcc-arm-none-eabi-7-2018-q2-update/bin/arm-none-eabi-g++ /usr/bin/arm-none-eabi-g++
      sudo ln -s /opt/gcc-arm-none-eabi-7-2018-q2-update/bin/arm-none-eabi-gcc /usr/bin/arm-none-eabi-gcc
+     sudo ln -s /opt/gcc-arm-none-eabi-7-2018-q2-update/bin/arm-none-eabi-objcopy /usr/bin/arm-none-eabi-objcopy
      ```
    - Clone this repository to any location
      ```
@@ -39,6 +40,8 @@ This has been tested with version 12.6.2 (coming soon).
    - Edit the main.cpp file
    
    - Add any new .cpp files to the Makefile
+   
+     In the "Objects and Paths" section add a new "MYCPP+=_______" with the name of the file followed by ".o"
    
    - Compile the code
      ```
@@ -52,4 +55,3 @@ This has been tested with version 12.6.2 (coming soon).
 ## Things to work on
 
 - [ ] Currently, if the Max patch is restarted, the instrument will need to be reset in order to register it with the controller again. There should be a way to have the controller broadcast a message asking for all instruments to re-connect.
-- [ ] Ideally there should be a function in the osc_client.h file that takes a message of any format and returns the values from the message. Currently the osc_dispatch() callback in main.cpp has a section of code that parses a ",ii" formatted message (lines 54-65). This should be abstracted into the osc_client.h code and made to work with any message format.
