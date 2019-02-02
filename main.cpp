@@ -37,15 +37,15 @@ DigitalOut led3(LED3);	//Red ethernet LED
 int main() {
 
 	//set the instrument name
-	char name[] = "OSCInstrument";
+	char name[] = "OSC-Test-1";
 	instrumentName = name;
 
 	printf("Starting Instrunemt\r\n");
 
 	//Turn on all LEDs
 	led1 = 1;
-	led2 = 2;
-	led3 = 3;
+	led2 = 1;
+	led3 = 1;
 
 	//Setup ethernet interface
 	EthernetInterface eth;

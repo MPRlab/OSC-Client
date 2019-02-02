@@ -8,7 +8,7 @@
  *
  * Changelog:
  * - 1.0 Initial commit
- * - 1.1 
+ * - 1.1
  * - 2.0 Overhaul that split the original .h file into 4 new files
  * - 2.1 Added new methods to make everything easier
  */
@@ -66,8 +66,6 @@ class OSCClient {
 		nsapi_size_or_error_t send(OSCMessage* msg);
 		nsapi_size_or_error_t receive(OSCMessage* msg);
 		void connect();
-
-		// Untested methods below
 		nsapi_size_t checkForMessage(OSCMessage* msg);
 		nsapi_size_t waitForMessage(OSCMessage* msg);
 		char* getInstrumentName(OSCMessage* msg);
