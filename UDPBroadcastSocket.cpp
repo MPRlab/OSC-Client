@@ -1,7 +1,10 @@
 #include "UDPBroadcastSocket.h"
 
-//template<typename S>
-//UDPBroadcastSocket::UDPBroadcastSocket(S* stack) : UDPSocket(stack) { }
+template<typename S>
+UDPBroadcastSocket::UDPBroadcastSocket(S* stack) : UDPSocket() {
+
+	open(stack);
+}
 
 void UDPBroadcastSocket::set_broadcast(bool broadcast) {
 	struct lwip_socket *s = (struct lwip_socket *)_socket;

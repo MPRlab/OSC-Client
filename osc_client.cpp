@@ -118,6 +118,14 @@ byte* OSCClient::flatten_osc_message(OSCMessage* msg, int* len_ptr) {
 
 //////////////////////////////////////////////////
 
+template <typename S> 
+OSCClient(S* stack, char* name):
+instrumentName(name), controller(BROADCAST_IP, OSC_PORT), address(stack->get_ip_address(), OSC_PORT), udp_broadcast(), udp() {
+
+	udp_broadcast.open(stack);
+	udp.open(stack);
+}
+
 /**
  * Get the IP address of the controller
  *

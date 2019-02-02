@@ -22,8 +22,7 @@ struct lwip_socket {
 
 class UDPBroadcastSocket: public UDPSocket {
 	public:
-		template<typename S> UDPBroadcastSocket(S* stack) : UDPSocket(stack) {}
-		// template<typename S> UDPBroadcastSocket(S* stack);  <-- is apparently incorrect???
+		template<typename S> UDPBroadcastSocket(S* stack);
 		void set_broadcast(bool broadcast);
 };
 

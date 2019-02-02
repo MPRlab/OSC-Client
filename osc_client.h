@@ -50,24 +50,15 @@ typedef struct {
 
 
 class OSCClient {
-	private:
-		SocketAddress controller;		// The address (IP, port) of the central controller
-		SocketAddress address;			// The address (IP, port) of this instrument
-		UDPBroadcastSocket udp_broadcast;	// The socket used to broadcast to the controller during discovery.
-		UDPSocket udp;				// The socket used to communicate with the controller. 
-		char* instrumentName;
-		static int OSC_SIZE(char* str);
-		static uint32_t swap_endian(uint32_t number);
-		static OSCMessage* build_osc_message(char* address, char* format, ...);
-		static byte* flatten_osc_message(OSCMessage* msg, int* len_ptr);
+	
 	public:
-		template <typename S> OSCClient(S* stack, char* name):instrumentName(name), controller(BROADCAST_IP, OSC_PORT), address(stack->get_ip_address(), OSC_PORT), udp_broadcast(stack), udp(stack) { }
+		template <typename S> OSCClient(S* stack, char* name);
 		const char* get_controller_ip();
 		nsapi_size_or_error_t send(OSCMessage* msg);
 		nsapi_size_or_error_t receive(OSCMessage* msg);
 		void connect();
 
-		// Untested methods below
+		// Untested methods belowtemplate <typename S> OSCClient(S* stack, char* name):instrumentName(name), controller(BROADCAST_IP, OSC_PORT), address(stack->get_ip_address(), OSC_PORT), udp_broadcast(), udp(stack);
 		nsapi_size_t checkForMessage(OSCMessage* msg);
 		nsapi_size_t waitForMessage(OSCMessage* msg);
 		char* getInstrumentName(OSCMessage* msg);
@@ -76,6 +67,19 @@ class OSCClient {
 		uint32_t getIntAtIndex(OSCMessage* msg, int index);
 		float getFloatAtIndex(OSCMessage* msg, int index);
 		char* getStringAtIndex(OSCMessage* msg, int index);
+
+	private:
+		
+		char* instrumentName;
+		SocketAddress controller;		// The address (IP, port) of the central controller
+		SocketAddress address;			// The address (IP, port) of this instrument
+		UDPBroadcastSocket udp_broadcast;	// The socket used to broadcast to the controller during discovery.
+		UDPSocket udp;				// The socket used to communicate with the controller. 
+		
+		static int OSC_SIZE(char* str);
+		static uint32_t swap_endian(uint32_t number);
+		static OSCMessage* build_osc_message(char* address, char* format, ...);
+		static byte* flatten_osc_message(OSCMessage* msg, int* len_ptr);
 
 };
 
