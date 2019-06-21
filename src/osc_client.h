@@ -15,8 +15,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef OSC_CLIENT_H_
-#define OSC_CLIENT_H_
+#pragma once
 
 #include "mbed.h"
 #include "UDPSocket.h"
@@ -28,6 +27,7 @@
 #define BROADCAST_IP			"192.168.2.255"
 #define OSC_PORT				8000
 #define OSC_MSG_SIZE			256
+#define QUEUE_SIZE				10
 
 #define DEBUG (0)
 
@@ -51,23 +51,38 @@ typedef struct {
 
 class OSCClient {
 	private:
-		SocketAddress controller;		// The address (IP, port) of the central controller
-		SocketAddress address;			// The address (IP, port) of this instrument
-		UDPBroadcastSocket udp_broadcast;	// The socket used to broadcast to the controller during discovery.
-		UDPSocket udp;				// The socket used to communicate with the controller. 
-		char* instrumentName;
+		const char* instrumentName;				// The name of the instrument	
+		SocketAddress controller;				// The address (IP, port) of the central controller
+		SocketAddress address;					// The address (IP, port) of this instrument
+		UDPBroadcastSocket udp_broadcast;		// The socket used to broadcast to the controller during discovery.
+		UDPSocket udp;							// The socket used to communicate with the controller. 
+		Thread messageRecieverThread;			// Thread to handle recieving the messages
+		Queue<OSCMessage, QUEUE_SIZE> messageQueue;		// Queue for the messages to be put into
+		MemoryPool<OSCMessage, QUEUE_SIZE> mpool;
 		static int OSC_SIZE(char* str);
 		static uint32_t swap_endian(uint32_t number);
 		static OSCMessage* build_osc_message(char* address, char* format, ...);
 		static byte* flatten_osc_message(OSCMessage* msg, int* len_ptr);
+		void messageRecieverFunction();
+		nsapi_size_t checkForMessage(OSCMessage* msg);
+		nsapi_size_t waitForMessage(OSCMessage* msg);
+		
 	public:
-		template <typename S> OSCClient(S* stack, char* name):instrumentName(name), controller(BROADCAST_IP, OSC_PORT), address(stack->get_ip_address(), OSC_PORT), udp_broadcast(stack), udp(stack) { }
+		template <typename S> OSCClient(S* stack, const char* name)
+			:instrumentName(name), controller(BROADCAST_IP, OSC_PORT), 
+			 address(stack->get_ip_address(), OSC_PORT), 
+			 udp_broadcast(stack), udp(stack) {
+		
+			
+		}
+		void initBuffer();
+		osStatus freeMessage(OSCMessage* m);
+		uint8_t getMessageFromQueue(OSCMessage** m);
+		static void threadStarter(void const* p);
 		const char* get_controller_ip();
 		nsapi_size_or_error_t send(OSCMessage* msg);
 		nsapi_size_or_error_t receive(OSCMessage* msg);
 		void connect();
-		nsapi_size_t checkForMessage(OSCMessage* msg);
-		nsapi_size_t waitForMessage(OSCMessage* msg);
 		char* getInstrumentName(OSCMessage* msg);
 		char* getMessageType(OSCMessage* msg);
 		char* getMessageFormat(OSCMessage* msg);
@@ -76,5 +91,3 @@ class OSCClient {
 		char* getStringAtIndex(OSCMessage* msg, int index);
 
 };
-
-#endif /* OSC_CLIENT_H_ */

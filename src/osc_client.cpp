@@ -24,6 +24,46 @@ uint32_t OSCClient::swap_endian(uint32_t number) {
 	return ((byte0<<24) | (byte1 << 16) | (byte2 << 8) | (byte3 << 0));
 }
 
+osStatus OSCClient::freeMessage(OSCMessage* m) {
+	return mpool.free(m);
+}
+
+void OSCClient::messageRecieverFunction() {
+
+	while(1) {
+		// allocate memory for a message
+		OSCMessage* msg = mpool.alloc();
+		// wait for a message
+		this->waitForMessage(msg);
+		// add the message to the queue
+		messageQueue.put(msg);
+	}
+}
+
+void OSCClient::initBuffer() {
+	messageRecieverThread.start(callback(threadStarter, this));
+	messageRecieverThread.set_priority(osPriorityNormal);
+}
+
+void OSCClient::threadStarter(const void* p) {
+	OSCClient* instancePtr = static_cast<OSCClient*>(const_cast<void*>(p));
+	instancePtr->messageRecieverFunction();
+}
+
+uint8_t OSCClient::getMessageFromQueue(OSCMessage** m) {
+	
+	if(!messageQueue.empty()) {
+		//printf("trying to get a message\r\n");
+		osEvent evt = messageQueue.get();
+		if (evt.status == osEventMessage) {
+    		*m = (OSCMessage*)evt.value.p;
+			//printf("got a message\r\n");
+			return 1;
+		}
+	}
+	return 0;
+}
+
 /**
  * Create a new OSCMessage with the given values
  *
@@ -96,6 +136,7 @@ byte* OSCClient::flatten_osc_message(OSCMessage* msg, int* len_ptr) {
 
 	// Allocate the buffer and a position pointer
 	byte* stream = (byte*) malloc(length);
+
 	// Need to zero out the buffer in case the address or format string need padding bytes
 	for(int i = 0; i < length; i++) {
 		stream[i] = 0;
@@ -105,10 +146,8 @@ byte* OSCClient::flatten_osc_message(OSCMessage* msg, int* len_ptr) {
 	// Flatten the OSCMessage into the allocated stream buffer
 	strcpy(posn, msg->address);
 	posn += padded_address_length;
-
 	strcpy(posn, msg->format);
 	posn += padded_format_length;
-
 	for(int i = 0; i < msg->data_size; i++) {
 		*(posn++) = msg->data[i];
 	}
@@ -320,6 +359,8 @@ char* OSCClient::getStringAtIndex(OSCMessage* msg, int index) {
 void OSCClient::connect() {
 	// TODO: udp_broadcast socket can probably be a local variable in this function, 
 	// instead of being a field of OSCClient
+
+	printf("Starting OSC Connection\r\n");
 	
 	// For the setup phase, allow the socket to block
 	this->udp_broadcast.set_blocking(true);
@@ -337,9 +378,10 @@ void OSCClient::connect() {
 	// Enable broadcasting for the socket	
 	this->udp_broadcast.set_broadcast(true);
 	SocketAddress broadcast(BROADCAST_IP, OSC_PORT);
-	
 	int length = 0;
+
 	byte* msg_buf = flatten_osc_message(msg, &length);
+
 	
 	nsapi_size_or_error_t size_or_error = this->udp_broadcast.sendto(broadcast, msg_buf, length);
 	if(size_or_error < 0) {
