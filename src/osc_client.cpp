@@ -23,7 +23,7 @@ uint32_t OSCClient::swap_endian(uint32_t number) {
 	byte3 = (number & 0xFF000000) >> 24;
 	return ((byte0<<24) | (byte1 << 16) | (byte2 << 8) | (byte3 << 0));
 }
-
+/*
 osStatus OSCClient::freeMessage(OSCMessage* m) {
 	return mpool.free(m);
 }
@@ -63,6 +63,7 @@ uint8_t OSCClient::getMessageFromQueue(OSCMessage** m) {
 	}
 	return 0;
 }
+*/
 
 /**
  * Create a new OSCMessage with the given values
@@ -176,11 +177,11 @@ const char* OSCClient::get_controller_ip() {
 nsapi_size_or_error_t OSCClient::send(OSCMessage* msg) {
 	int length = 0;
 	byte* stream = flatten_osc_message(msg, &length);
-	if(DEBUG) printf("Sending UDP data\n");
+	//if(DEBUG) printf("Sending UDP data\n");
 	// Send out the stream and then free it
 	nsapi_size_or_error_t out = this->udp.sendto(this->controller, stream, length);
 	free(stream);
-	if(DEBUG) printf("Done sending UDP data\n");
+	//if(DEBUG) printf("Done sending UDP data\n");
 
 	return out;
 }
@@ -202,6 +203,7 @@ nsapi_size_or_error_t OSCClient::receive(OSCMessage* msg) {
 	if(recv <= 0) {
 		return recv;
 	}
+	//printf("recv=%d\r\n",recv);
 
 	// Clear the struct
 	memset(msg, 0, sizeof(OSCMessage));
@@ -242,6 +244,7 @@ nsapi_size_or_error_t OSCClient::receive(OSCMessage* msg) {
  * @return The number of bytes recieved, or 0 for none
  */
 nsapi_size_t OSCClient::checkForMessage(OSCMessage* msg) {
+	
 	
 	nsapi_size_or_error_t size_or_error = receive(msg);
 
@@ -360,7 +363,7 @@ void OSCClient::connect() {
 	// TODO: udp_broadcast socket can probably be a local variable in this function, 
 	// instead of being a field of OSCClient
 
-	printf("Starting OSC Connection\r\n");
+	//printf("Starting OSC Connection\r\n");
 	
 	// For the setup phase, allow the socket to block
 	this->udp_broadcast.set_blocking(true);
@@ -385,7 +388,7 @@ void OSCClient::connect() {
 	
 	nsapi_size_or_error_t size_or_error = this->udp_broadcast.sendto(broadcast, msg_buf, length);
 	if(size_or_error < 0) {
-		if(DEBUG) printf("Error sending the registration message! (%d)\r\n", size_or_error);
+		//if(DEBUG) printf("Error sending the registration message! (%d)\r\n", size_or_error);
 		exit(1);
 	}
 
@@ -403,18 +406,18 @@ void OSCClient::connect() {
 	
 	// TODO: this section should keep trying to recieve messages until it gets the correct kind
 	// of "acknowledgement" message (just in case)
-	int status = this->udp.bind(OSC_PORT+1);
-	if(DEBUG) printf("bind status: %d\r\n", status);
+	this->udp.bind(OSC_PORT+1);
+	//if(DEBUG) printf("bind status: %d\r\n", status);
 
 	// Get back a request for functions from the controller
 	// TODO: use a new SocketAddress here instead of broadcast	
 	size_or_error = this->udp.recvfrom(&broadcast, buffer, OSC_MSG_SIZE);	
 	if(size_or_error < 0) {
-		if(DEBUG) printf("Error finding controller! (%d)\r\n", size_or_error);
+		//if(DEBUG) printf("Error finding controller! (%d)\r\n", size_or_error);
 		exit(1);
 	}
 
-	if(DEBUG) printf("Controller ip addr:%s\r\n", broadcast.get_ip_address());
+	//if(DEBUG) printf("Controller ip addr:%s\r\n", broadcast.get_ip_address());
 	// TODO: need to confirm that this moves the broadcast SocketAddress object into
 	// this OSCClient object
 	this->controller = broadcast;

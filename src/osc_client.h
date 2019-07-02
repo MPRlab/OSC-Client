@@ -56,29 +56,33 @@ class OSCClient {
 		SocketAddress address;					// The address (IP, port) of this instrument
 		UDPBroadcastSocket udp_broadcast;		// The socket used to broadcast to the controller during discovery.
 		UDPSocket udp;							// The socket used to communicate with the controller. 
-		Thread messageRecieverThread;			// Thread to handle recieving the messages
-		Queue<OSCMessage, QUEUE_SIZE> messageQueue;		// Queue for the messages to be put into
-		MemoryPool<OSCMessage, QUEUE_SIZE> mpool;
+		//Thread messageRecieverThread;			// Thread to handle recieving the messages
+		//Queue<OSCMessage, QUEUE_SIZE> messageQueue;		// Queue for the messages to be put into
+		//MemoryPool<OSCMessage, QUEUE_SIZE> mpool;
 		static int OSC_SIZE(char* str);
 		static uint32_t swap_endian(uint32_t number);
 		static OSCMessage* build_osc_message(char* address, char* format, ...);
 		static byte* flatten_osc_message(OSCMessage* msg, int* len_ptr);
 		void messageRecieverFunction();
-		nsapi_size_t checkForMessage(OSCMessage* msg);
-		nsapi_size_t waitForMessage(OSCMessage* msg);
+		
 		
 	public:
 		template <typename S> OSCClient(S* stack, const char* name)
 			:instrumentName(name), controller(BROADCAST_IP, OSC_PORT), 
 			 address(stack->get_ip_address(), OSC_PORT), 
-			 udp_broadcast(stack), udp(stack) {
-		
+			 udp_broadcast(stack), udp() {
+				 
+
+			//udp();
+			udp.open(stack);
 			
 		}
-		void initBuffer();
-		osStatus freeMessage(OSCMessage* m);
-		uint8_t getMessageFromQueue(OSCMessage** m);
-		static void threadStarter(void const* p);
+		nsapi_size_t checkForMessage(OSCMessage* msg);
+		nsapi_size_t waitForMessage(OSCMessage* msg);
+		//void initBuffer();
+		//osStatus freeMessage(OSCMessage* m);
+		//uint8_t getMessageFromQueue(OSCMessage** m);
+		//static void threadStarter(void const* p);
 		const char* get_controller_ip();
 		nsapi_size_or_error_t send(OSCMessage* msg);
 		nsapi_size_or_error_t receive(OSCMessage* msg);
